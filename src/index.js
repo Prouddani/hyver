@@ -38,7 +38,6 @@ client.on('clientReady', async (c) => {
 
 
         { /* Verification Message Posting */
-            posted = false;
             const channel = await client.channels.cache.get(process.env.VerifyChannelID);
             if (!channel) return;
 
