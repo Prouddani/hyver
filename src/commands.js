@@ -1,57 +1,46 @@
 require('dotenv').config();
-const { REST, Routes, ApplicationCommandOptionType } = require('discord.js');
+const { Client, REST, Routes } = require('discord.js');
 
-const commands = [
+class CommandsHandler
+{
+    constructor(postgresHandler)
     {
-        name: 'add',
-        description: 'Adds two numbers together',
-        options: [
-            {
-                name: 'num1',
-                description: 'The first number',
-                type: ApplicationCommandOptionType.Number,
-                choices: [
-                    {
-                        name: 'one',
-                        value: 1,
-                    },
-                    {
-                        name: 'two',
-                        value: 2,
-                    },
-                    {
-                        name: 'three',
-                        value: 3,
-                    },
-                ],
-                required: true
-            },
-            {
-                name: 'num2',
-                description: 'The second number',
-                type: ApplicationCommandOptionType.Number,
-                required: true
-            }
-        ]
+        this.rest = new REST({ version: '10' }).setToken(process.env.token);
+        this.commands = [];
+
+        this.pgHandler = postgresHandler;
     }
-];
 
-const rest = new REST({ version: '10' }).setToken(process.env.token);
-
-(async () => {
-    try {
-        console.log('Registering commands...');
-
-        await rest.put(
-            Routes.applicationGuildCommands(process.env.ClientID, process.env.GuildID),
-            {
-                
-                body: commands,
-            }
-        );
-
-        console.log('Commands were registered successfully.');
-    } catch (error) {
-        console.error(error);
+    async addCommand(command, client, callback)
+    {
+        this.commands.push(command);
+        client.on('interactionCreate', async (interaction) => {
+            if (!interaction.isChatInputCommand()) return;
+            
+            if (interaction.commandName === command.name)
+                await callback(interaction);
+        });
     }
-})();
+
+    async flush(client)
+    {
+        const guilds = await client.guilds.fetch();
+        if (!guilds)
+            return;
+
+        guilds.forEach(async guild => {
+           try {
+                await this.rest.put(
+                    Routes.applicationGuildCommands(process.env.client_id, guild.id),
+                    {
+                        body: this.commands,
+                    }
+                );
+            } catch (error) {
+                console.log(error);
+            } 
+        });
+    }
+}
+
+module.exports = { CommandsHandler };

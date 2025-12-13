@@ -4,8 +4,6 @@ const axios = require('axios');
 const url = require('url');
 const { access } = require('fs');
 
-const port = process.env.PORT;
-
 class OAuth2Handler
 {
     constructor()
@@ -50,9 +48,9 @@ class OAuth2Handler
             }
         });
 
-        this.app.listen(port, () => {
-            console.log(`Running on ${port}`);
-        });
+        // this.app.listen(port, () => {
+        //     console.log(`Running oauth2`);
+        // });
     }
 
     on(event, callback)
@@ -62,8 +60,8 @@ class OAuth2Handler
 
     async getUserDataFromRefreshToken(refresh_token) {
         const refresh_body = new URLSearchParams({
-            client_id: process.env.ClientId,
-            client_secret: process.env.ClientSecret,
+            client_id: process.env.client_id,
+            client_secret: process.env.client_secret,
             grant_type: "refresh_token",
             refresh_token: refresh_token,
         });
