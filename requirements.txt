@@ -1,0 +1,5 @@
+axios
+@supabase/supabase-js
+express
+dotenv
+url

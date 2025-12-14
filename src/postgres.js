@@ -49,7 +49,31 @@ class PostgresHandler
                 return error2;
             }
         }
+    }
 
+    async setMessageId(guild_id, verify_message_id)
+    {
+        const { data, error } = await this.supabase.from('guilds').select('guild_id').eq('guild_id', guild_id).limit(1).maybeSingle()
+                
+        if (error)
+            return error;
+
+        if (data !== null)
+        {
+            // guild_id already registered
+
+            // update the verify_channel_id value of guild_id to the new verify_channel_id
+            const { error2 } = await this.supabase.from('guilds').update({ 'verify_message_id': verify_message_id }).eq('guild_id', guild_id);
+
+            if (error2 )
+            {
+                return error2;
+            }
+        }
+        else
+        {
+            return 'verify_channel_id must exist for the registration of verify_message_id to be successful. Please register verify_channel_id first, you nerd XD';
+        }
     }
 }
 

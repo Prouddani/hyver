@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const url = require('url');
-const { access } = require('fs');
 
 class OAuth2Handler
 {
@@ -12,7 +11,7 @@ class OAuth2Handler
         this.app = express();
 
         // Fired when someone gets redirected from discord oauth2
-        this.app.get('/api/auth/discord/redirect', async (request, response) => {
+        this.app.get('https://prouddani.github.io/hyver', async (request, response) => {
             try {
                 const { code } = request.query;
                 if (!code) return response.status(400).send('No code provided');
@@ -22,7 +21,7 @@ class OAuth2Handler
                     client_secret: process.env.ClientSecret,
                     grant_type: 'authorization_code',
                     code: code.toString(),
-                    redirect_uri: `http://localhost:${port}/api/auth/discord/redirect`,
+                    redirect_uri: `https://prouddani.github.io/hyver/`,
                 });
 
                 // Exchange the authorization code for an access token

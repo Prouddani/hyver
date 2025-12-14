@@ -22,47 +22,6 @@ const cmdHandler = new CommandsHandler();
 
 client.on('clientReady', async (c) => {
     console.log(`Bot initialized as ${c.user.tag}`);
-    
-    try
-    {
-
-
-        { /* Verification Message Posting */
-            const guilds = await pgHandler.getGuildsInfo();
-            console.log(guilds);
-            if (guilds)
-            {
-                guilds.forEach(async guildInfo => {
-                    console.log(guildInfo);
-                    const channel = await client.channels.fetch(guildInfo.verify_channel_id);
-                    if (!channel)
-                        return;
-
-                    const verify_messages = await channel.messages.fetch({ limit: 10 });
-                    posted_already = verify_messages.some(message => message.author.id === client.user.id);
-
-                    if (!posted_already)
-                    {
-                        // Message and create verify button
-
-                        const row = new ActionRowBuilder();
-                        row.components.push(
-                            new ButtonBuilder().setCustomId('verify')
-                                                .setLabel('Verify')
-                                                .setStyle(ButtonStyle.Primary)
-                        );
-                        
-                        await channel.send({
-                            content: 'Verify by accessing the link below:',
-                            components: [row],
-                        });
-                    }
-                })
-            }
-        }
-    } catch (err) {
-        console.log(err);
-    }
 
 
 
@@ -80,26 +39,16 @@ client.on('clientReady', async (c) => {
     }
 
     { // command handler
-        cmdHandler.addCommand({
-            name: 'setverify',
-            description: 'Sets a new channel for verification to happen',
-            options: [
-                {
-                    name: 'channel',
-                    description: 'The channel you want to be used for verifications',
-                    type: ApplicationCommandOptionType.Channel,
-                    required: true
-                }
-            ]
-        }, client, async (interaction) => {
-            const channel = interaction.options.get('channel');
-            
-            await interaction.deferReply();
 
-            const error = await pgHandler.setGuildAndVerifyChannel(interaction.guild.id, channel.channel.id);
+        // Send verification message slash command
+        cmdHandler.addCommand({
+            name: 'sendverification',
+            description: 'Send the verify message on the channel you currently are in',
+        }, client, async (interaction) => {
+            const error = await pgHandler.setGuildAndVerifyChannel(interaction.guildId, interaction.channelId);
             if (error)
             {
-                interaction.editReply(
+                interaction.reply(
                     {
                         content: `${error}`,
                         flags: MessageFlags.Ephemeral,
@@ -107,14 +56,46 @@ client.on('clientReady', async (c) => {
                 );
             }
             else {
-                interaction.editReply(
-                    {
-                        content: 'Verified!',
-                        flags: MessageFlags.Ephemeral
-                    }
-                );
+                try {
+                    /* Verification Message Posting */
+                    const row = new ActionRowBuilder();
+                    row.components.push(
+                        new ButtonBuilder().setLabel('Authenticate discord account')
+                                            .setStyle(ButtonStyle.Link)
+                                            .setURL(process.env.oauth2)
+
+                    );
+                    
+                    const message = await interaction.channel.send(
+                        {
+                            content: 'Verify by accessing the link below:',
+                            components: [row],
+                        }
+                    );
+
+                    await pgHandler.setMessageId(message.guild.id, message.id);
+
+
+                    // cleaning
+                    const contents = [
+                        'Fwoosh! This channel can now be used for hyverification 😏',
+                        'Done! Just like you ordered! *salutes*',
+                        'I am inside your walls. (I did my task)',
+                        "console.log('Hello world! (this channel is now being used for verifications!)') // 01101000 01101001",
+                        `I, ${client.user.tag}, announce that this channel will now be used as a verification centre! 👏👏👏`
+                    ]
+                    interaction.reply(
+                        {
+                            content: contents[Math.floor(Math.random() * contents.length)],
+                            flags: MessageFlags.Ephemeral
+                        }
+                    );
+                } catch (error) {
+                    console.log(error);
+                }
             }
         });
+
         cmdHandler.flush(client);
     }
 });
