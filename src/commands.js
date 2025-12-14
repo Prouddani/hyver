@@ -1,4 +1,3 @@
-require('dotenv').config();
 const { Client, REST, Routes } = require('discord.js');
 
 class CommandsHandler

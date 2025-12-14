@@ -1,7 +1,6 @@
-require('dotenv').config();
-const express = require('express');
-const axios = require('axios');
-const url = require('url');
+const express = require('express')
+const axios = require('axios')
+const url = require('url')
 
 class OAuth2Handler
 {
@@ -11,7 +10,7 @@ class OAuth2Handler
         this.app = express();
 
         // Fired when someone gets redirected from discord oauth2
-        this.app.get('https://prouddani.github.io/hyver', async (request, response) => {
+        this.app.get('localhost:1337', async (request, response) => {
             try {
                 const { code } = request.query;
                 if (!code) return response.status(400).send('No code provided');
@@ -47,9 +46,9 @@ class OAuth2Handler
             }
         });
 
-        // this.app.listen(port, () => {
-        //     console.log(`Running oauth2`);
-        // });
+        this.app.listen(1337, () => {
+            console.log(`Running oauth2`);
+        });
     }
 
     on(event, callback)

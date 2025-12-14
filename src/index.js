@@ -1,10 +1,9 @@
-require('dotenv').config();
-const url = require('url');
+// import { Client, IntentsBitField, ActionRowBuilder, ButtonStyle, ButtonBuilder, ApplicationCommandOptionType, MessageFlags } from 'discord.js'
+const { Client, IntentsBitField, ActionRowBuilder, ButtonStyle, ButtonBuilder, ApplicationCommandOptionType, MessageFlags } = require('discord.js')
 
-const { CommandsHandler } = require ('./commands.js');
-const { PostgresHandler } = require('./postgres');
-const { OAuth2Handler } = require('./oauth2.js');
-const { Client, IntentsBitField, ActionRowBuilder, ButtonStyle, ButtonBuilder, ApplicationCommandOptionType, MessageFlags } = require('discord.js');
+const { CommandsHandler } = require('./commands')
+const { PostgresHandler } = require('./postgres')
+const { OAuth2Handler } = require('./oauth2')
 
 // Bot's client instance
 const client = new Client({
