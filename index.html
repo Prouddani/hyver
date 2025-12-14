@@ -1,8 +1,25 @@
-<html lang="en">
-    <head>
-        <title>redirect</title>
-    </head>
-    <body>
-        
+<!doctype html>
+<html>
+<body>
+    <div id="status">Authorizing...</div>
+        <script>
+            require('dotenv').config();
+
+            const q = new URLSearchParams(location.search);
+            const code = q.get("code");
+            const state = q.get("state");
+
+            (async () => {
+                await fetch("https://localhost:1337/oauth/discord", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code, state })
+                }).then(async response => {
+                    document.getElementById("status").textContent = r.ok ? "Done. You can close this tab." : "Failed."
+                }).catch(() => {
+                    document.getElementById("status").textContent = "Failed."
+                });
+            })();
+        </script>
     </body>
 </html>
